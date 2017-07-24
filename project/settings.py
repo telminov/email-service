@@ -123,6 +123,20 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+DEVINO_LOGIN = 'Your Login'
+DEVINO_PASSWORD = 'Your password'
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        #'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        # 'rest_framework.renderers.BrowsableAPIRenderer',
+        'rest_framework.renderers.JSONRenderer',
+    )
+}
 
 try:
     from project.local_settings import *
