@@ -1,28 +1,5 @@
 from rest_framework import serializers
 
-from . import models
-
-
-class DevinoError(serializers.ModelSerializer):
-
-    class Meta:
-        model = models.DevinoError
-        fields = ('code', 'description', 'request')
-
-    @classmethod
-    def register_exception(cls, devino_request, ex):
-        data = {
-            'request': devino_request.pk,
-        }
-        if ex.error:
-            data['code'] = ex.error.code
-            data['description'] = ex.error.description
-
-        serializer = cls(data=data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return serializer
-
 
 class AddressSender(serializers.Serializer):
     address = serializers.EmailField()
@@ -39,7 +16,7 @@ class GetTask(serializers.Serializer):
 
 class AddTask(serializers.Serializer):
     name = serializers.CharField()
-    sender_address = serializers.EmailField()
+    sender_email = serializers.EmailField()
     sender_name = serializers.CharField()
     subject = serializers.CharField()
     text = serializers.CharField()
@@ -56,9 +33,8 @@ class EditTask(AddTask):
     id_task = serializers.IntegerField()
 
 
-class EditTaskStatus(serializers.Serializer):
-    id_task = serializers.IntegerField()
-    state = serializers.CharField()
+class EditTaskStatus(GetTask):
+    task_state = serializers.CharField()
 
 
 class GetTemplate(serializers.Serializer):
@@ -74,14 +50,8 @@ class AddTemplate(serializers.Serializer):
     user_template_id = serializers.CharField(default=None)
 
 
-class EditTemplate(serializers.Serializer):
+class EditTemplate(AddTemplate):
     id_template = serializers.IntegerField()
-    name = serializers.CharField()
-    text = serializers.CharField()
-    sender_email = serializers.EmailField(default=None)
-    sender_name = serializers.CharField(default=None)
-    subject = serializers.CharField(default=None)
-    user_template_id = serializers.CharField(default=None)
 
 
 class DelTemplate(serializers.Serializer):
@@ -89,13 +59,13 @@ class DelTemplate(serializers.Serializer):
 
 
 class GetState(serializers.Serializer):
-    id_task = serializers.IntegerField()
-    start = serializers.DateTimeField(default=None)
-    end = serializers.DateTimeField(default=None)
+    id_task = serializers.IntegerField(default=None)
+    start = serializers.DateField(default=None)
+    end = serializers.DateField(default=None)
 
 
 class GetStateDetailing(serializers.Serializer):
-    id_task = serializers.IntegerField()
+    id_task = serializers.IntegerField(default=None)
     start = serializers.DateField(default=None)
     end = serializers.DateField(default=None)
     state = serializers.CharField(default=None)
@@ -104,15 +74,15 @@ class GetStateDetailing(serializers.Serializer):
 
 
 class SendMessage(serializers.Serializer):
-    sender_address = serializers.EmailField()
+    sender_email = serializers.EmailField()
     sender_name = serializers.CharField()
-    recipient_address = serializers.EmailField()
+    recipient_email = serializers.EmailField()
     recipient_name = serializers.CharField()
     subject = serializers.CharField()
     text = serializers.CharField()
     user_message_id = serializers.CharField(default=None)
     user_campaign_id = serializers.CharField(default=None)
-    tempale_id = serializers.CharField(default=None)
+    template_id = serializers.CharField(default=None)
 
 
 class GetStatusMessages(serializers.Serializer):

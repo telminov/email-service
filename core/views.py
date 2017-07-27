@@ -11,427 +11,178 @@ from email_devino.client import DevinoException
 from . import models
 from . import consts
 from . import serializers
+from .utils import date_handler
 
 
-class GetAddressesSender(views.APIView):
-    def get(self, request):
-        client = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD)
-        devino_request = models.DevinoRequest.objects.create(api=consts.GET_ADDRESSES_SENDER)
+class BaseDevino(views.APIView):
+    api_resource = None
+    serializer = None
+    api_resource_lib = None
+
+    def devino_request(self, serializer=None):
+        if serializer:
+            serializer.is_valid(raise_exception=True)
+        devino_request = models.DevinoRequest.objects.create(api_resource=self.api_resource,
+                                                             data=json.dumps(
+                                                                 serializer.validated_data if serializer else None,
+                                                                 default=date_handler
+                                                             ))
         try:
-            answer = client.get_addresses_sender()
+            if serializer:
+                answer = self.api_resource_lib(**serializer.validated_data)
+            else:
+                answer = self.api_resource_lib()
             models.DevinoAnswer.objects.create(
                 code=answer.code,
                 description=answer.description,
                 result=answer.result,
                 request=devino_request,
             )
-            return Response(answer.result)
+            return Response({'code': answer.code, 'description': answer.description, 'result': answer.result})
         except DevinoException as ex:
-            error_serializer = serializers.DevinoError.register_exception(devino_request, ex)
-            return Response(error_serializer.data, status=status.HTTP_400_BAD_REQUEST)
-
-
-class AddAddressSender(views.APIView):
-    def post(self, request):
-        serializer = serializers.AddressSender(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        address = serializer.data['address']
-        client = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD)
-        devino_request = models.DevinoRequest.objects.create(api=consts.ADD_ADDRESS_SENDER,
-                                                             data=json.dumps(serializer.data))
-        try:
-            answer = client.add_address_sender(address)
-            models.DevinoAnswer.objects.create(
-                code=answer.code,
-                description=answer.description,
-                result=answer.result,
-                request=devino_request
+            error = models.DevinoAnswer.objects.create(
+                code=ex.error.code,
+                description=ex.error.description,
+                request=devino_request,
+                is_fail=True,
             )
-            return Response(answer.result)
-        except DevinoException as ex:
-            error_serializer = serializers.DevinoError.register_exception(devino_request, ex)
-            return Response(error_serializer.data, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'code': error.code, 'description': error.description}, status=status.HTTP_400_BAD_REQUEST)
 
+    def get(self, request):
+        serializer = self.serializer
+        if serializer:
+            serializer = serializer(data=request.query_params)
+        response = self.devino_request(serializer)
+        return response
 
-class DelAddressSender(views.APIView):
+    def post(self, request):
+        serializer = self.serializer
+        if serializer:
+            serializer = serializer(data=request.data)
+        response = self.devino_request(serializer)
+        return response
+
+    def put(self, request):
+        serializer = self.serializer
+        if serializer:
+            serializer = serializer(data=request.data)
+        response = self.devino_request(serializer)
+        return response
+
     def delete(self, request):
-        serializer = serializers.AddressSender(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        address = serializer.data['address']
-        client = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD)
-        devino_request = models.DevinoRequest.objects.create(api=consts.ADD_ADDRESS_SENDER,
-                                                             data=json.dumps(serializer.data))
-        try:
-            answer = client.del_address_sender(address)
-            models.DevinoAnswer.objects.create(
-                code=answer.code,
-                description=answer.description,
-                result=answer.result,
-                request=devino_request,
-            )
-            return Response(answer.result)
-        except DevinoException as ex:
-            error_serializer = serializers.DevinoError.register_exception(devino_request, ex)
-            return Response(error_serializer.data, status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.serializer
+        if serializer:
+            serializer = serializer(data=request.data)
+        response = self.devino_request(serializer)
+        return response
 
 
-class GetTasks(views.APIView):
-    def get(self, request):
-        serializer = serializers.GetTasks(data=request.query_params)
-        serializer.is_valid(raise_exception=True)
-
-        range_start = serializer.validated_data['range_start']
-        range_end = serializer.validated_data['range_end']
-        client = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD)
-        devino_request = models.DevinoRequest.objects.create(api=consts.ADD_ADDRESS_SENDER,
-                                                             data=json.dumps(serializer.data))
-        try:
-            answer = client.get_tasks(range_start, range_end)
-            models.DevinoAnswer.objects.create(
-                code=answer.code,
-                description=answer.description,
-                result=answer.result,
-                request=devino_request,
-            )
-            return Response(answer.result)
-        except DevinoException as ex:
-            error_serializer = serializers.DevinoError.register_exception(devino_request, ex)
-            return Response(error_serializer.data, status=status.HTTP_400_BAD_REQUEST)
+class GetAddressesSender(BaseDevino):
+    api_resource = consts.GET_ADDRESSES_SENDER
+    api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).get_addresses_sender
+    allowed_methods = ['get', ]
 
 
-class GetTask(views.APIView):
-    def get(self, request):
-        serializer = serializers.GetTask(data=request.query_params)
-        serializer.is_valid(raise_exception=True)
-
-        id_task = serializer.data['id_task']
-        client = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD)
-        devino_request = models.DevinoRequest.objects.create(api=consts.ADD_ADDRESS_SENDER,
-                                                             data=json.dumps(serializer.data))
-        try:
-            answer = client.get_task(id_task)
-            models.DevinoAnswer.objects.create(
-                code=answer.code,
-                description=answer.description,
-                result=answer.result,
-                request=devino_request,
-            )
-            return Response(answer.result)
-        except DevinoException as ex:
-            error_serializer = serializers.DevinoError.register_exception(devino_request, ex)
-            return Response(error_serializer.data, status=status.HTTP_400_BAD_REQUEST)
+class AddAddressSender(BaseDevino):
+    api_resource = consts.ADD_ADDRESS_SENDER
+    serializer = serializers.AddressSender
+    api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).add_address_sender
+    allowed_methods = ['post', ]
 
 
-class AddTask(views.APIView):
-    def post(self, request):
-        serializer = serializers.AddTask(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        name = serializer.data['name']
-        sender_email = serializer.data['sender_address']
-        sender_name = serializer.data['sender_name']
-        subject = serializer.data['subject']
-        text = serializer.data['text']
-        type_task = serializer.data['type_task']
-        start = serializer.data['start']
-        end = serializer.data['end']
-        user_id = serializer.data['user_id']
-        contact_list = serializer.data['contact_list']
-        template_id = serializer.data['template_id']
-        duplicates = serializer.data['duplicates']
-
-        client = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD)
-        devino_request = models.DevinoRequest.objects.create(api=consts.ADD_ADDRESS_SENDER,
-                                                             data=json.dumps(serializer.data))
-        try:
-            answer = client.add_task(name, sender_email, sender_name, subject, text, type_task, start, end, user_id,
-                                     contact_list, template_id, duplicates)
-            models.DevinoAnswer.objects.create(
-                code=answer.code,
-                description=answer.description,
-                result=answer.result,
-                request=devino_request,
-            )
-            return Response(answer.result)
-        except DevinoException as ex:
-            error_serializer = serializers.DevinoError.register_exception(devino_request, ex)
-            return Response(error_serializer.data, status=status.HTTP_400_BAD_REQUEST)
+class DelAddressSender(BaseDevino):
+    api_resource = consts.DEL_ADDRESS_SENDER
+    serializer = serializers.AddressSender
+    api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).del_address_sender
+    allowed_methods = ['delete', ]
 
 
-class EditTask(views.APIView):
-    def put(self, request):
-        serializer = serializers.EditTask(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        id_task = serializer.data['id_task']
-        name = serializer.data['name']
-        sender_email = serializer.data['sender_address']
-        sender_name = serializer.data['sender_name']
-        subject = serializer.data['subject']
-        text = serializer.data['text']
-        type_task = serializer.data['type_task']
-        start = serializer.data['start']
-        end = serializer.data['end']
-        user_id = serializer.data['user_id']
-        contact_list = serializer.data['contact_list']
-        template_id = serializer.data['template_id']
-        duplicates = serializer.data['duplicates']
-
-        client = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD)
-        devino_request = models.DevinoRequest.objects.create(api=consts.ADD_ADDRESS_SENDER,
-                                                             data=json.dumps(serializer.data))
-        try:
-            answer = client.edit_task(id_task, name, sender_email, sender_name, subject, text, type_task, start, end,
-                                      user_id, contact_list, template_id, duplicates)
-            models.DevinoAnswer.objects.create(
-                code=answer.code,
-                description=answer.description,
-                result=answer.result,
-                request=devino_request,
-            )
-            return Response(answer.result)
-        except DevinoException as ex:
-            error_serializer = serializers.DevinoError.register_exception(devino_request, ex)
-            return Response(error_serializer.data, status=status.HTTP_400_BAD_REQUEST)
+class GetTasks(BaseDevino):
+    api_resource = consts.GET_TASKS_LIST
+    serializer = serializers.GetTasks
+    api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).get_tasks
+    allowed_methods = ['get', ]
 
 
-class EditTaskStatus(views.APIView):
-    def put(self, request):
-        serializer = serializers.EditTaskStatus(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        id_task = serializer.data['id_task']
-        state = serializer.data['state']
-        client = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD)
-        devino_request = models.DevinoRequest.objects.create(api=consts.ADD_ADDRESS_SENDER,
-                                                             data=json.dumps(serializer.data))
-        try:
-            answer = client.edit_task_status(id_task, state)
-            models.DevinoAnswer.objects.create(
-                code=answer.code,
-                description=answer.description,
-                result=answer.result,
-                request=devino_request,
-            )
-            return Response(answer.result)
-        except DevinoException as ex:
-            error_serializer = serializers.DevinoError.register_exception(devino_request, ex)
-            return Response(error_serializer.data, status=status.HTTP_400_BAD_REQUEST)
+class GetTask(BaseDevino):
+    api_resource = consts.GET_TASK
+    serializer = serializers.GetTask
+    api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).get_task
+    allowed_methods = ['get', ]
 
 
-class GetTemplate(views.APIView):
-    def get(self, request):
-        serializer = serializers.GetTemplate(data=request.query_params)
-        serializer.is_valid(raise_exception=True)
-
-        id_template = serializer.data['id_template']
-        client = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD)
-        devino_request = models.DevinoRequest.objects.create(api=consts.ADD_ADDRESS_SENDER,
-                                                             data=json.dumps(serializer.data))
-        try:
-            answer = client.get_template(id_template)
-            models.DevinoAnswer.objects.create(
-                code=answer.code,
-                description=answer.description,
-                result=answer.result,
-                request=devino_request,
-            )
-            return Response(answer.result)
-        except DevinoException as ex:
-            error_serializer = serializers.DevinoError.register_exception(devino_request, ex)
-            return Response(error_serializer.data, status=status.HTTP_400_BAD_REQUEST)
+class AddTask(BaseDevino):
+    api_resource = consts.ADD_TASK
+    serializer = serializers.AddTask
+    api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).add_task
+    allowed_methods = ['post', ]
 
 
-class AddTemplate(views.APIView):
-    def post(self, request):
-        serializer = serializers.AddTemplate(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        name = serializer.data['name']
-        text = serializer.data['text']
-        sender_email = serializer.data['sender_email']
-        sender_name = serializer.data['sender_name']
-        subject = serializer.data['subject']
-        user_template_id = serializer.data['user_template_id']
-
-        client = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD)
-        devino_request = models.DevinoRequest.objects.create(api=consts.ADD_ADDRESS_SENDER,
-                                                             data=json.dumps(serializer.data))
-        try:
-            answer = client.add_template(name, text, sender_email, sender_name, subject, user_template_id)
-            models.DevinoAnswer.objects.create(
-                code=answer.code,
-                description=answer.description,
-                result=answer.result,
-                request=devino_request,
-            )
-            return Response(answer.result)
-        except DevinoException as ex:
-            error_serializer = serializers.DevinoError.register_exception(devino_request, ex)
-            return Response(error_serializer.data, status=status.HTTP_400_BAD_REQUEST)
+class EditTask(BaseDevino):
+    api_resource = consts.EDIT_TASK
+    serializer = serializers.EditTask
+    api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).edit_task
+    allowed_methods = ['put', ]
 
 
-class EditTemplate(views.APIView):
-    def put(self, request):
-        serializer = serializers.EditTemplate(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        id_template = serializer.data['id_template']
-        name = serializer.data['name']
-        text = serializer.data['text']
-        sender_email = serializer.data['sender_email']
-        sender_name = serializer.data['sender_name']
-        subject = serializer.data['subject']
-        user_template_id = serializer.data['user_template_id']
-
-        client = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD)
-        devino_request = models.DevinoRequest.objects.create(api=consts.ADD_ADDRESS_SENDER,
-                                                             data=json.dumps(serializer.data))
-        try:
-            answer = client.edit_template(id_template, name, text, sender_email, sender_name, subject, user_template_id)
-            models.DevinoAnswer.objects.create(
-                code=answer.code,
-                description=answer.description,
-                result=answer.result,
-                request=devino_request,
-            )
-            return Response(answer.result)
-        except DevinoException as ex:
-            error_serializer = serializers.DevinoError.register_exception(devino_request, ex)
-            return Response(error_serializer.data, status=status.HTTP_400_BAD_REQUEST)
+class EditTaskStatus(BaseDevino):
+    api_resource = consts.EDIT_TASK_STATUS
+    serializer = serializers.EditTaskStatus
+    api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).edit_task_status
+    allowed_methods = ['put', ]
 
 
-class DelTemplate(views.APIView):
-    def delete(self, request):
-        serializer = serializers.DelTemplate(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        id_template = serializer.data['id_template']
-        client = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD)
-        devino_request = models.DevinoRequest.objects.create(api=consts.ADD_ADDRESS_SENDER,
-                                                             data=json.dumps(serializer.data))
-        try:
-            answer = client.del_template(id_template)
-            models.DevinoAnswer.objects.create(
-                code=answer.code,
-                description=answer.description,
-                result=answer.result,
-                request=devino_request,
-            )
-            return Response(answer.result)
-        except DevinoException as ex:
-            error_serializer = serializers.DevinoError.register_exception(devino_request, ex)
-            return Response(error_serializer.data, status=status.HTTP_400_BAD_REQUEST)
+class GetTemplate(BaseDevino):
+    api_resource = consts.GET_TEMPLATE
+    serializer = serializers.GetTemplate
+    api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).get_template
+    allowed_methods = ['get', ]
 
 
-class GetState(views.APIView):
-    def get(self, request):
-        serializer = serializers.GetState(data=request.query_params)
-        serializer.is_valid(raise_exception=True)
-
-        id_template = serializer.data['id_template']
-        start = serializer.data['start']
-        end = serializer.data['end']
-
-        client = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD)
-        devino_request = models.DevinoRequest.objects.create(api=consts.ADD_ADDRESS_SENDER,
-                                                             data=json.dumps(serializer.data))
-        try:
-            answer = client.get_state(id_template, start, end)
-            models.DevinoAnswer.objects.create(
-                code=answer.code,
-                description=answer.description,
-                result=answer.result,
-                request=devino_request,
-            )
-            return Response(answer.result)
-        except DevinoException as ex:
-            error_serializer = serializers.DevinoError.register_exception(devino_request, ex)
-            return Response(error_serializer.data, status=status.HTTP_400_BAD_REQUEST)
+class AddTemplate(BaseDevino):
+    api_resource = consts.ADD_TEMPLATE
+    serializer = serializers.AddTemplate
+    api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).add_template
+    allowed_methods = ['post', ]
 
 
-class GetStateDetailing(views.APIView):
-    def get(self, request):
-        serializer = serializers.GetStateDetailing(data=request.query_params)
-        serializer.is_valid(raise_exception=True)
-
-        id_template = serializer.data['id_template']
-        start = serializer.data['start']
-        end = serializer.data['end']
-        state = serializer.data['state']
-        range_start = serializer.data['range_start']
-        range_end = serializer.data['range_end']
-
-        client = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD)
-        devino_request = models.DevinoRequest.objects.create(api=consts.ADD_ADDRESS_SENDER,
-                                                             data=json.dumps(serializer.data))
-        try:
-            answer = client.get_state_detailing(id_template, start, end, state, range_start, range_end)
-            models.DevinoAnswer.objects.create(
-                code=answer.code,
-                description=answer.description,
-                result=answer.result,
-                request=devino_request,
-            )
-            return Response(answer.result)
-        except DevinoException as ex:
-            error_serializer = serializers.DevinoError.register_exception(devino_request, ex)
-            return Response(error_serializer.data, status=status.HTTP_400_BAD_REQUEST)
+class EditTemplate(BaseDevino):
+    api_resource = consts.EDIT_TEMPLATE
+    serializer = serializers.EditTemplate
+    api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).edit_template
+    allowed_methods = ['put', ]
 
 
-class SendMessage(views.APIView):
-    def post(self, request):
-        serializer = serializers.SendMessage(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        sender_address = serializer.data['sender_address']
-        sender_name = serializer.data['sender_name']
-        recipient_address = serializer.data['recipient_address']
-        recipient_name = serializer.data['recipient_name']
-        subject = serializer.data['subject']
-        text = serializer.data['text']
-        user_message_id = serializer.data['user_message_id']
-        user_campaign_id = serializer.data['user_campaign_id']
-        template_id = serializer.data['template_id']
-
-        client = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD)
-        devino_request = models.DevinoRequest.objects.create(api=consts.ADD_ADDRESS_SENDER,
-                                                             data=json.dumps(serializer.data))
-        try:
-            answer = client.send_transactional_message(sender_address, sender_name, recipient_address, recipient_name,
-                                                       subject, text, user_message_id, user_campaign_id, template_id)
-            models.DevinoAnswer.objects.create(
-                code=answer.code,
-                description=answer.description,
-                result=answer.result,
-                request=devino_request,
-            )
-            return Response(answer.result)
-        except DevinoException as ex:
-            error_serializer = serializers.DevinoError.register_exception(devino_request, ex)
-            return Response(error_serializer.data, status=status.HTTP_400_BAD_REQUEST)
+class DelTemplate(BaseDevino):
+    api_resource = consts.DEL_TEMPLATE
+    serializer = serializers.DelTemplate
+    api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).del_template
+    allowed_methods = ['delete', ]
 
 
-class GetStatusMessages(views.APIView):
-    def get(self, request):
-        serializer = serializers.GetStatusMessages(data=request.query_params)
-        serializer.is_valid(raise_exception=True)
+class GetState(BaseDevino):
+    api_resource = consts.GET_STATE
+    serializer = serializers.GetState
+    api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).get_state
+    allowed_methods = ['get', ]
 
-        id_messages = serializer.data['id_messages']
-        client = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD)
-        devino_request = models.DevinoRequest.objects.create(api=consts.ADD_ADDRESS_SENDER,
-                                                             data=json.dumps(serializer.data))
-        try:
-            answer = client.get_status_transactional_message(id_messages)
-            models.DevinoAnswer.objects.create(
-                code=answer.code,
-                description=answer.description,
-                result=answer.result,
-                request=devino_request,
-            )
-            return Response(answer.result)
-        except DevinoException as ex:
-            error_serializer = serializers.DevinoError.register_exception(devino_request, ex)
-            return Response(error_serializer.data, status=status.HTTP_400_BAD_REQUEST)
+
+class GetStateDetailing(BaseDevino):
+    api_resource = consts.GET_STATE_DETAILING
+    serializer = serializers.GetStateDetailing
+    api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).get_state_detailing
+    allowed_methods = ['get', ]
+
+
+class SendMessage(BaseDevino):
+    api_resource = consts.SEND_MESSAGE
+    serializer = serializers.SendMessage
+    api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).send_transactional_message
+    allowed_methods = ['post', ]
+
+
+class GetStatusMessages(BaseDevino):
+    api_resource = consts.GET_STATUS_MESSAGE
+    serializer = serializers.GetStatusMessages
+    api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).get_status_transactional_message
+    allowed_methods = ['get', ]

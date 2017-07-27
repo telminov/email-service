@@ -16,15 +16,8 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
 
 
 class DevinoRequest(models.Model):
-    api = models.CharField(max_length=64, choices=consts.STATUS_CHOICES)
+    api_resource = models.CharField(max_length=64, choices=consts.API_CHOICES)
     data = JSONField(null=True, blank=True)
-    dc = models.DateTimeField(auto_now_add=True)
-
-
-class DevinoError(models.Model):
-    code = models.CharField(max_length=64)
-    description = models.CharField(max_length=256)
-    request = models.OneToOneField(DevinoRequest, related_name='devino_error')
     dc = models.DateTimeField(auto_now_add=True)
 
 
@@ -33,4 +26,5 @@ class DevinoAnswer(models.Model):
     description = models.CharField(max_length=256)
     result = JSONField(null=True, blank=True)
     request = models.OneToOneField(DevinoRequest, related_name='devino_answer')
+    is_fail = models.BooleanField(default=False)
     dc = models.DateTimeField(auto_now_add=True)
