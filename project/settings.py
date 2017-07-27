@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
 
+    'bootstrap3',
+
     'core',
 ]
 
@@ -64,6 +66,7 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
+                'django.template.context_processors.static',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
@@ -126,6 +129,8 @@ STATIC_URL = '/static/'
 DEVINO_LOGIN = 'Your Login'
 DEVINO_PASSWORD = 'Your password'
 
+LOGIN_REDIRECT_URL = '/admin'
+
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -135,7 +140,11 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         # 'rest_framework.renderers.BrowsableAPIRenderer',
         'rest_framework.renderers.JSONRenderer',
-    )
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        # 'rest_framework.permissions.AllowAny',
+        'rest_framework.permissions.IsAuthenticated',
+    ),
 }
 
 try:
