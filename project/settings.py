@@ -39,9 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
-
     'bootstrap3',
-
     'core',
 ]
 
@@ -129,7 +127,8 @@ STATIC_URL = '/static/'
 DEVINO_LOGIN = 'Your Login'
 DEVINO_PASSWORD = 'Your password'
 
-LOGIN_REDIRECT_URL = '/admin'
+LOGIN_URL = '/admin/login/'
+LOGIN_REDIRECT_URL = '/admin/'
 
 
 REST_FRAMEWORK = {
