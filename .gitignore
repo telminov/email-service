@@ -4,3 +4,4 @@ project/local_settings.py
 db.sqlite3
 __pycache__/
 project/__pycache__/
+node_modules/
