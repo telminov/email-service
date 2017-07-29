@@ -3,9 +3,17 @@ Microservice django-project for [sw-python-email-devino](https://github.com/telm
 
 ## Example send bulk
 
-1. Add sender address in Devino
+1. Add sender address in Devino. After adding the sender's address, you need to contact the Devino manager to confirm the address
+
+```python
+import requests
+data= {
+    'address': 'sender_address@test.test'
+}
+requests.post('http://127.0.0.1:8000/api/add_address_sender/', json=data)
+```
  
-2. Add contact group in Devino 
+2. Add contact group in Devino. You need to do this in Devino online
 
 3. Send request
 
@@ -27,7 +35,15 @@ requests.post('http://127.0.0.1:8000/api/add_task/', json=data)
 
 ## Example send one message
 
-1. Add sender addresses in Devino
+1. Add sender addresses in Devino. After adding the sender's address, you need to contact the Devino manager to confirm the address
+
+```python
+import requests
+data= {
+    'address': 'sender_address@test.test'
+}
+requests.post('http://127.0.0.1:8000/api/add_address_sender/', json=data)
+```
 
 2. Send request
 
