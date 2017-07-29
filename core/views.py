@@ -1,9 +1,7 @@
 import json
 
 from django.conf import settings
-from django.views.generic import FormView
-from django.http import HttpResponseRedirect
-from django.urls import reverse
+from django.views.generic import RedirectView
 from rest_framework import views
 from rest_framework.response import Response
 from rest_framework import status
@@ -15,7 +13,10 @@ from . import models
 from . import consts
 from . import serializers
 from .utils import date_handler
-from . import forms
+
+
+class Index(RedirectView):
+    url = '/docs/'
 
 
 class BaseDevino(views.APIView):
@@ -26,16 +27,19 @@ class BaseDevino(views.APIView):
     def devino_request(self, serializer=None):
         if serializer:
             serializer.is_valid(raise_exception=True)
-        devino_request = models.DevinoRequest.objects.create(api_resource=self.api_resource,
-                                                             data=json.dumps(
-                                                                 serializer.validated_data if serializer else None,
-                                                                 default=date_handler
-                                                             ))
+
+        json_data = json.dumps(
+            serializer.validated_data if serializer else None,
+            default=date_handler
+        )
+        devino_request = models.DevinoRequest.objects.create(api_resource=self.api_resource, data=json_data)
+
         try:
             if serializer:
                 answer = self.api_resource_lib(**serializer.validated_data)
             else:
                 answer = self.api_resource_lib()
+
             models.DevinoAnswer.objects.create(
                 code=answer.code,
                 description=answer.description,
@@ -43,6 +47,7 @@ class BaseDevino(views.APIView):
                 request=devino_request,
             )
             return Response({'code': answer.code, 'description': answer.description, 'result': answer.result})
+
         except DevinoException as ex:
             error = models.DevinoAnswer.objects.create(
                 code=ex.error.code,
@@ -190,27 +195,3 @@ class GetStatusMessages(BaseDevino):
     serializer = serializers.GetStatusMessages
     api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).get_status_transactional_message
     allowed_methods = ['get', ]
-
-
-class SendBulk(FormView):
-    form_class = forms.AddTask
-    template_name = 'core/index.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(SendBulk, self).get_context_data(**kwargs)
-        if self.request.POST:
-            context['formset'] = forms.ContactListFormSet(self.request.POST)
-            context['formset'].clean()
-        else:
-            context['formset'] = forms.ContactListFormSet()
-        return context
-
-    def form_valid(self, form):
-        context = self.get_context_data()
-        formset = context['formset']
-        if formset.is_valid():
-            form.cleaned_data['contact_list'] = [(f.cleaned_data['id'], f.cleaned_data['included']) for f in formset]
-            DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).add_task(**form.cleaned_data)
-            return HttpResponseRedirect(reverse('login'))
-        else:
-            return self.render_to_response(self.get_context_data(form=form))
