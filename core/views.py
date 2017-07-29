@@ -1,6 +1,7 @@
 import json
 
 from django.conf import settings
+from django.views.generic import RedirectView
 from rest_framework import views
 from rest_framework.response import Response
 from rest_framework import status
@@ -14,6 +15,10 @@ from . import serializers
 from .utils import date_handler
 
 
+class Index(RedirectView):
+    url = '/docs/'
+
+
 class BaseDevino(views.APIView):
     api_resource = None
     serializer = None
@@ -22,16 +27,19 @@ class BaseDevino(views.APIView):
     def devino_request(self, serializer=None):
         if serializer:
             serializer.is_valid(raise_exception=True)
-        devino_request = models.DevinoRequest.objects.create(api_resource=self.api_resource,
-                                                             data=json.dumps(
-                                                                 serializer.validated_data if serializer else None,
-                                                                 default=date_handler
-                                                             ))
+
+        json_data = json.dumps(
+            serializer.validated_data if serializer else None,
+            default=date_handler
+        )
+        devino_request = models.DevinoRequest.objects.create(api_resource=self.api_resource, data=json_data)
+
         try:
             if serializer:
                 answer = self.api_resource_lib(**serializer.validated_data)
             else:
                 answer = self.api_resource_lib()
+
             models.DevinoAnswer.objects.create(
                 code=answer.code,
                 description=answer.description,
@@ -39,6 +47,7 @@ class BaseDevino(views.APIView):
                 request=devino_request,
             )
             return Response({'code': answer.code, 'description': answer.description, 'result': answer.result})
+
         except DevinoException as ex:
             error = models.DevinoAnswer.objects.create(
                 code=ex.error.code,
