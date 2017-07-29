@@ -1,0 +1,65 @@
+{% extends 'core/base.html' %}
+{% load bootstrap3 %}
+
+{% block content %}
+    <div class="container">
+        <form class="form-horizontal" method="post">
+            {% csrf_token %}
+            {% bootstrap_form form layout='horizontal' horizontal_field_class='col-sm-5' horizontal_label_class='col-sm-4' %}
+
+            <div class="row">
+            <div class="col-sm-6">
+                <button onclick="addForm()" type="button" class="btn btn-success btn-sm" data-toggle="tooltip"
+                        data-placement="top" title="Add new contact group"><i class="glyphicon glyphicon-plus"></i>
+                </button>
+                <b style="font-size: 18px">Contact group</b></div>
+            <div class="col-sm-6 text-right">
+                <button onclick="deleteAllForms()" type="button" class="btn btn-danger btn-sm" data-toggle="tooltip"
+                        data-placement="left" title="Remove all contact group"><i
+                        class="glyphicon glyphicon-trash"></i> Delete all
+                </button>
+            </div>
+        </div>
+        <br>
+
+            {{ formset.management_form }}
+
+        <div class="hide">
+            <div class="row variable" id="empty_form">
+                <div class="col-sm-5">{% bootstrap_field formset.empty_form.id layout='horizontal' %}</div>
+                <div class="col-sm-5">{% bootstrap_field formset.empty_form.included layout='horizontal' %}</div>
+                <div class="col-sm-2">
+                    <button type="button" class="btn btn-danger btn-block btn-sm"
+                            onclick="deleteElem($(this).parents('.row.variable'))"
+                            data-toggle="tooltip" data-placement="top" title="Remove this repeat setting">
+                        <i class="glyphicon glyphicon-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="variables">
+            {% for f in formset %}
+                <div class="row variable">
+                    <div class="col-sm-4">{% bootstrap_field f.id layout='horizontal' %}</div>
+                    <div class="col-sm-6">{% bootstrap_field f.included layout='horiznotal' %}</div>
+                    <div class="col-sm-2">
+                        <button type="button" class="btn btn-danger btn-block btn-sm"
+                                onclick="deleteElem($(this).parent('.row.variable'))" data-toggle="tooltip"
+                                data-placement="top" title="Remove this contact group">
+                            <i class="glyphicon glyphicon-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            {% endfor %}
+        <div id="deleted-variables" class="hide"></div>
+        </div>
+        <div class="col-sm-2 col-sm-offset-5">
+            <button type="submit" class="btn btn-success btn-block">
+                Submit
+            </button>
+        </div>
+        </form>
+    </div>
+
+{% endblock %}

@@ -1,6 +1,9 @@
 import json
 
 from django.conf import settings
+from django.views.generic import FormView
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 from rest_framework import views
 from rest_framework.response import Response
 from rest_framework import status
@@ -12,6 +15,7 @@ from . import models
 from . import consts
 from . import serializers
 from .utils import date_handler
+from . import forms
 
 
 class BaseDevino(views.APIView):
@@ -186,3 +190,27 @@ class GetStatusMessages(BaseDevino):
     serializer = serializers.GetStatusMessages
     api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).get_status_transactional_message
     allowed_methods = ['get', ]
+
+
+class SendBulk(FormView):
+    form_class = forms.AddTask
+    template_name = 'core/index.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(SendBulk, self).get_context_data(**kwargs)
+        if self.request.POST:
+            context['formset'] = forms.ContactListFormSet(self.request.POST)
+            context['formset'].clean()
+        else:
+            context['formset'] = forms.ContactListFormSet()
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        formset = context['formset']
+        if formset.is_valid():
+            form.cleaned_data['contact_list'] = [(f.cleaned_data['id'], f.cleaned_data['included']) for f in formset]
+            DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).add_task(**form.cleaned_data)
+            return HttpResponseRedirect(reverse('login'))
+        else:
+            return self.render_to_response(self.get_context_data(form=form))

@@ -19,4 +19,6 @@ urlpatterns = [
     url(r'^api/get_state_detailing/$', views.GetStateDetailing.as_view(), name='get_state_detailing'),
     url(r'^api/send_message/$', views.SendMessage.as_view(), name='send_message'),
     url(r'^api/get_status_messages/$', views.GetStatusMessages.as_view(), name='get_status_messages'),
+
+    url(r'^send_message/$', views.SendBulk.as_view(), name='send_message_interface'),
 ]
