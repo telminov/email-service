@@ -30,7 +30,7 @@ RUN pip3 install django==1.11.3 \
         gunicorn==19.6.0 \
         ipython \
         raven==6.1.0 \
-        psycopg2==2.7.1 \
+        psycopg2==2.7.1
 
 RUN mkdir /var/log/app
 
