@@ -22,13 +22,22 @@ RUN curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-5.
 RUN dpkg -i filebeat-5.4.0-amd64.deb
 RUN rm filebeat-5.4.0-amd64.deb
 
+RUN pip3 install django==1.11.3 \
+        sw-python-email-devino==0.0.1 \
+        djangorestframework==3.6.3 \
+        jsonfield==2.0.2 \
+        django-bootstrap3==9.0.0 \
+        gunicorn==19.6.0 \
+        ipython \
+        raven==6.1.0 \
+        psycopg2==2.7.1 \
+
 RUN mkdir /var/log/app
 
 # copy source
 COPY . /opt/app
 WORKDIR /opt/app
 
-RUN pip3 install -r requirements.txt
 RUN cp project/local_settings.sample.py project/local_settings.py
 
 COPY supervisor/prod.conf /etc/supervisor/conf.d/app.conf

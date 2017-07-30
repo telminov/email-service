@@ -6,3 +6,4 @@ sw-python-email-devino==0.0.1
 gunicorn==19.4.5
 ipython
 raven==6.1.0
+psycopg2==2.7.1
