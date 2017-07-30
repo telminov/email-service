@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from .views import rest, views
+from .views import rest, ui
 
 urlpatterns = [
     # url(r'^$', views.Index.as_view()),
@@ -21,5 +21,5 @@ urlpatterns = [
     url(r'^api/send_message/$', rest.SendMessage.as_view(), name='send_message'),
     url(r'^api/get_status_messages/$', rest.GetStatusMessages.as_view(), name='get_status_messages'),
 
-    url(r'^send_message/$', views.SendMessage.as_view(), name='send_message_interface'),
+    url(r'^send_message/$', ui.SendMessage.as_view(), name='send_message_interface'),
 ]
