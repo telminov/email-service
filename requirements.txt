@@ -2,3 +2,8 @@ django==1.11.3
 djangorestframework==3.6.3
 jsonfield==2.0.2
 django-bootstrap3==9.0.0
+sw-python-email-devino==0.0.1
+gunicorn==19.4.5
+ipython
+raven==6.1.0
+psycopg2==2.7.1

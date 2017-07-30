@@ -46,7 +46,14 @@ class BaseDevino(views.APIView):
                 result=answer.result,
                 request=devino_request,
             )
-            return Response({'code': answer.code, 'description': answer.description, 'result': answer.result})
+            if answer.code == consts.STATUS_BAD_REQUEST:
+                status_response = status.HTTP_400_BAD_REQUEST
+            elif answer.code == consts.STATUS_ERROR_API:
+                status_response = status.HTTP_500_INTERNAL_SERVER_ERROR
+            else:
+                status_response = status.HTTP_200_OK
+            return Response({'code': answer.code, 'description': answer.description, 'result': answer.result},
+                            status=status_response)
 
         except DevinoException as ex:
             error = models.DevinoAnswer.objects.create(
