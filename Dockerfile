@@ -47,7 +47,7 @@ EXPOSE 80
 VOLUME /data/
 VOLUME /conf/
 VOLUME /static/
-VOLUME /logs/
+VOLUME /tls/
 
 
 CMD test "$(ls /conf/local_settings.py)" || cp project/local_settings.py /conf/local_settings.py; \
