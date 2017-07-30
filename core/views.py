@@ -49,7 +49,7 @@ class BaseDevino(views.APIView):
             if answer.code == consts.STATUS_BAD_REQUEST:
                 status_response = status.HTTP_400_BAD_REQUEST
             elif answer.code == consts.STATUS_ERROR_API:
-                status_response = status.HTTP_501_NOT_IMPLEMENTED
+                status_response = status.HTTP_500_INTERNAL_SERVER_ERROR
             else:
                 status_response = status.HTTP_200_OK
             return Response({'code': answer.code, 'description': answer.description, 'result': answer.result},
