@@ -1,9 +1,12 @@
 from django.conf.urls import url
 
+from rest_framework_swagger.views import get_swagger_view
+
 from . import views
 
 urlpatterns = [
-    # url(r'^$', views.Index.as_view()),
+    url(r'^docs/$', get_swagger_view(title='API')),
+    url(r'^$', views.Index.as_view()),
     url(r'^api/get_addresses_sender/$', views.GetAddressesSender.as_view(), name='get_addresses_sender'),
     url(r'^api/add_address_sender/$', views.AddAddressSender.as_view(), name='add_address_sender'),
     url(r'^api/del_address_sender/$', views.DelAddressSender.as_view(), name='del_address_sender'),
