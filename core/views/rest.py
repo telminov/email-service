@@ -9,10 +9,10 @@ from rest_framework import status
 from email_devino.client import DevinoClient
 from email_devino.client import DevinoException
 
-from . import models
-from . import consts
-from . import serializers
-from .utils import date_handler
+from core import models
+from core import consts
+from core import serializers
+from core.utils import date_handler
 
 
 class Index(RedirectView):

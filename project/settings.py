@@ -131,7 +131,7 @@ DEVINO_PASSWORD = 'Your password'
 
 LOGIN_URL = '/admin/login/'
 LOGOUT_URL = '/admin/logout/'
-LOGIN_REDIRECT_URL = '/admin/'
+LOGIN_REDIRECT_URL = '/send_message'
 
 
 REST_FRAMEWORK = {
