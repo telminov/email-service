@@ -90,21 +90,21 @@ class BaseDevino(views.APIView):
 
 class GetAddressesSender(BaseDevino):
     api_resource = consts.GET_ADDRESSES_SENDER
-    api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).get_addresses_sender
+    api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).get_sender_addresses
     allowed_methods = ['get', ]
 
 
 class AddAddressSender(BaseDevino):
     api_resource = consts.ADD_ADDRESS_SENDER
     serializer = serializers.AddressSender
-    api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).add_address_sender
+    api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).add_sender_address
     allowed_methods = ['post', ]
 
 
 class DelAddressSender(BaseDevino):
     api_resource = consts.DEL_ADDRESS_SENDER
     serializer = serializers.AddressSender
-    api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).del_address_sender
+    api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).del_sender_address
     allowed_methods = ['delete', ]
 
 
