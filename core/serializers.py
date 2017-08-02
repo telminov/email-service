@@ -86,4 +86,4 @@ class SendMessage(serializers.Serializer):
 
 
 class GetStatusMessages(serializers.Serializer):
-    id_messages = serializers.ListField(child=serializers.CharField())
+    id_messages = serializers.ListField(child=serializers.CharField(), allow_empty=False)
