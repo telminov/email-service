@@ -8,8 +8,7 @@ from email_devino.client import DevinoException
 class SendMessage(forms.Form):
     recipient_name = forms.CharField()
     recipient_email = forms.EmailField()
-    sender_email = forms.ChoiceField(widget=forms.Select, choices=[('server is not available, reload the page',
-                                                                    'server is not available, reload the page')])
+    sender_email = forms.ChoiceField(widget=forms.Select, choices=[])   # choices defined in __init__
     sender_name = forms.CharField()
     subject = forms.CharField()
     text = forms.CharField()
@@ -21,7 +20,7 @@ class SendMessage(forms.Form):
         super(SendMessage, self).__init__(*args, **kwargs)
 
         try:
-            answer = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).get_addresses_sender()
+            answer = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).get_addresses_sender()   # TODO: addresses_sender -> sender_addresses
             emails = []
 
             for data in answer.result:
@@ -32,4 +31,6 @@ class SendMessage(forms.Form):
             self.fields['sender_email'].choices = emails
 
         except DevinoException:
-            pass
+            self.fields['sender_email'].choices.append(
+                ('load_error', 'server is not available, reload the page')
+            )
