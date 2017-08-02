@@ -4,6 +4,7 @@ from django.views.generic import FormView
 from django.urls import reverse_lazy
 from django.conf import settings
 from django.contrib import messages
+from django.views.generic import RedirectView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from email_devino.client import DevinoClient
@@ -12,6 +13,10 @@ from email_devino.client import DevinoException
 from core import models
 from core import forms
 from core import consts
+
+
+class Index(RedirectView):
+    url = '/docs/'
 
 
 class SendMessage(LoginRequiredMixin, FormView):

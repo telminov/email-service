@@ -1,7 +1,6 @@
 import json
 
 from django.conf import settings
-from django.views.generic import RedirectView
 from rest_framework import views
 from rest_framework.response import Response
 from rest_framework import status
@@ -13,10 +12,6 @@ from core import models
 from core import consts
 from core import serializers
 from core.utils import date_handler
-
-
-class Index(RedirectView):
-    url = '/docs/'
 
 
 class BaseDevino(views.APIView):

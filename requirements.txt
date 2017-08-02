@@ -1,5 +1,6 @@
 django==1.11.3
 djangorestframework==3.6.3
+django-rest-swagger==2.1.2
 jsonfield==2.0.2
 django-bootstrap3==9.0.0
 sw-python-email-devino==0.0.1

@@ -1,9 +1,12 @@
 from django.conf.urls import url
 
+from rest_framework_swagger.views import get_swagger_view
+
 from .views import rest, ui
 
 urlpatterns = [
-    # url(r'^$', views.Index.as_view()),
+    url(r'^docs/$', get_swagger_view(title='API')),
+
     url(r'^api/get_addresses_sender/$', rest.GetAddressesSender.as_view(), name='get_addresses_sender'),
     url(r'^api/add_address_sender/$', rest.AddAddressSender.as_view(), name='add_address_sender'),
     url(r'^api/del_address_sender/$', rest.DelAddressSender.as_view(), name='del_address_sender'),
@@ -21,5 +24,6 @@ urlpatterns = [
     url(r'^api/send_message/$', rest.SendMessage.as_view(), name='send_message'),
     url(r'^api/get_status_messages/$', rest.GetStatusMessages.as_view(), name='get_status_messages'),
 
+    url(r'^$', ui.Index.as_view()),
     url(r'^send_message/$', ui.SendMessage.as_view(), name='send_message_interface'),
 ]
