@@ -89,111 +89,111 @@ class BaseDevino(views.APIView):
 
 
 class GetSenderAddresses(BaseDevino):
-    api_resource = consts.GET_ADDRESSES_SENDER
+    api_resource = consts.GET_SENDER_ADDRESSES
     api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).get_sender_addresses
-    allowed_methods = ['get', ]
+    http_method_names = ['get', ]
 
 
 class AddSenderAddress(BaseDevino):
-    api_resource = consts.ADD_ADDRESS_SENDER
+    api_resource = consts.ADD_SENDER_ADDRESS
     serializer = serializers.SenderAddress
     api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).add_sender_address
-    allowed_methods = ['post', ]
+    http_method_names = ['post', ]
 
 
 class DelSenderAddress(BaseDevino):
-    api_resource = consts.DEL_ADDRESS_SENDER
+    api_resource = consts.DEL_SENDER_ADDRESS
     serializer = serializers.SenderAddress
     api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).del_sender_address
-    allowed_methods = ['delete', ]
+    http_method_names = ['delete', ]
 
 
 class GetTasks(BaseDevino):
     api_resource = consts.GET_TASKS_LIST
     serializer = serializers.GetTasks
     api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).get_tasks
-    allowed_methods = ['get', ]
+    http_method_names = ['get', ]
 
 
 class GetTask(BaseDevino):
     api_resource = consts.GET_TASK
     serializer = serializers.GetTask
     api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).get_task
-    allowed_methods = ['get', ]
+    http_method_names = ['get', ]
 
 
 class AddTask(BaseDevino):
     api_resource = consts.ADD_TASK
     serializer = serializers.AddTask
     api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).add_task
-    allowed_methods = ['post', ]
+    http_method_names = ['post', ]
 
 
 class EditTask(BaseDevino):
     api_resource = consts.EDIT_TASK
     serializer = serializers.EditTask
     api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).edit_task
-    allowed_methods = ['put', ]
+    http_method_names = ['put', ]
 
 
 class EditTaskStatus(BaseDevino):
     api_resource = consts.EDIT_TASK_STATUS
     serializer = serializers.EditTaskStatus
     api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).edit_task_status
-    allowed_methods = ['put', ]
+    http_method_names = ['put', ]
 
 
 class GetTemplate(BaseDevino):
     api_resource = consts.GET_TEMPLATE
     serializer = serializers.GetTemplate
     api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).get_template
-    allowed_methods = ['get', ]
+    http_method_names = ['get', ]
 
 
 class AddTemplate(BaseDevino):
     api_resource = consts.ADD_TEMPLATE
     serializer = serializers.AddTemplate
     api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).add_template
-    allowed_methods = ['post', ]
+    http_method_names = ['post', ]
 
 
 class EditTemplate(BaseDevino):
     api_resource = consts.EDIT_TEMPLATE
     serializer = serializers.EditTemplate
     api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).edit_template
-    allowed_methods = ['put', ]
+    http_method_names = ['put', ]
 
 
 class DelTemplate(BaseDevino):
     api_resource = consts.DEL_TEMPLATE
     serializer = serializers.DelTemplate
     api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).del_template
-    allowed_methods = ['delete', ]
+    http_method_names = ['delete', ]
 
 
 class GetState(BaseDevino):
     api_resource = consts.GET_STATE
     serializer = serializers.GetState
     api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).get_state
-    allowed_methods = ['get', ]
+    http_method_names = ['get', ]
 
 
 class GetStateDetailing(BaseDevino):
     api_resource = consts.GET_STATE_DETAILING
     serializer = serializers.GetStateDetailing
     api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).get_state_detailing
-    allowed_methods = ['get', ]
+    http_method_names = ['get', ]
 
 
 class SendMessage(BaseDevino):
     api_resource = consts.SEND_MESSAGE
     serializer = serializers.SendMessage
     api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).send_transactional_message
-    allowed_methods = ['post', ]
+    http_method_names = ['post', ]
 
 
 class GetStatusMessages(BaseDevino):
     api_resource = consts.GET_STATUS_MESSAGE
     serializer = serializers.GetStatusMessages
     api_resource_lib = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).get_status_transactional_message
-    allowed_methods = ['get', ]
+    http_method_names = ['get', ]
