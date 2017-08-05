@@ -20,7 +20,7 @@ class SendMessage(forms.Form):
         super(SendMessage, self).__init__(*args, **kwargs)
 
         try:
-            answer = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).get_addresses_sender()   # TODO: addresses_sender -> sender_addresses
+            answer = DevinoClient(settings.DEVINO_LOGIN, settings.DEVINO_PASSWORD).get_sender_addresses()
             emails = []
 
             for data in answer.result:

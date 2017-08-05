@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.views.generic import RedirectView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponseBadRequest, HttpResponseRedirect
 
 from email_devino.client import DevinoClient
 from email_devino.client import DevinoException
@@ -48,5 +49,5 @@ class SendMessage(LoginRequiredMixin, FormView):
                 is_fail=True,
             )
             messages.error(self.request, 'Error in sending the request, pleate repeat')
-            return self.form_invalid(form)
-        return super(SendMessage, self).form_valid(form)
+            return HttpResponseBadRequest()
+        return HttpResponseRedirect(self.success_url)

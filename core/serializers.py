@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 
-class AddressSender(serializers.Serializer):
+class SenderAddress(serializers.Serializer):
     address = serializers.EmailField()
 
 

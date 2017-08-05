@@ -7,9 +7,9 @@ from .views import rest, ui
 urlpatterns = [
     url(r'^docs/$', get_swagger_view(title='API')),
 
-    url(r'^api/get_addresses_sender/$', rest.GetAddressesSender.as_view(), name='get_addresses_sender'),
-    url(r'^api/add_address_sender/$', rest.AddAddressSender.as_view(), name='add_address_sender'),
-    url(r'^api/del_address_sender/$', rest.DelAddressSender.as_view(), name='del_address_sender'),
+    url(r'^api/get_sender_addresses/$', rest.GetSenderAddresses.as_view(), name='get_sender_addresses'),
+    url(r'^api/add_sender_address/$', rest.AddSenderAddress.as_view(), name='add_sender_address'),
+    url(r'^api/del_sender_address/$', rest.DelSenderAddress.as_view(), name='del_sender_address'),
     url(r'^api/get_tasks/$', rest.GetTasks.as_view(), name='get_tasks'),
     url(r'^api/get_task/$', rest.GetTask.as_view(), name='get_task'),
     url(r'^api/add_task/$', rest.AddTask.as_view(), name='add_task'),
